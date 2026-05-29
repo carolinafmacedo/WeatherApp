@@ -36,10 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.model.City
+import com.example.weatherapp.model.MainViewModel
 
 @Composable
-fun ListPage(modifier: Modifier = Modifier) {
-    val cityList = remember { getCities().toMutableStateList() }
+fun ListPage(modifier: Modifier = Modifier,
+             viewModel: MainViewModel
+) {
+
+    val cityList = viewModel.cities
     val activity = LocalContext.current as Activity // Para os Toasts
     LazyColumn(
         modifier = modifier
@@ -49,17 +53,15 @@ fun ListPage(modifier: Modifier = Modifier) {
         items(cityList, key = { it.name }) { city ->
             CityItem(city = city,
                 onClose = {
-                Toast.makeText(activity, "Cidade: ${city.name} removida", Toast.LENGTH_SHORT).show()
+                    viewModel.remove(city)
+                    Toast.makeText(activity, "Cidade: ${city.name} removida", Toast.LENGTH_SHORT).show()
             }, onClick = {
-                Toast.makeText(activity, "Cidade ${city.name}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "Cidade ${city.name}", Toast.LENGTH_SHORT).show()
             })
         }
     }
 }
 
-private fun getCities() = List(20) { i ->
-    City(name = "Cidade $i", weather = "Carregando clima...")
-}
 
 @Composable
 fun CityItem(
