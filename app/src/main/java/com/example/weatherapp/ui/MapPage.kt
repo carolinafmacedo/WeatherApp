@@ -45,9 +45,6 @@ fun MapPage(
     viewModel: MainViewModel
 ) {
 
-    val recife = remember { MarkerState(LatLng(-8.05, -34.9)) }
-    val caruaru = remember { MarkerState( LatLng(-8.27, -35.98)) }
-    val joaopessoa = remember { MarkerState( LatLng(-7.12, -34.84)) }
     val camPosState = rememberCameraPositionState ()
 
     val context = LocalContext.current
@@ -58,12 +55,15 @@ fun MapPage(
                     PackageManager.PERMISSION_GRANTED
         )
     }
-    GoogleMap( modifier = modifier.fillMaxSize(), cameraPositionState = camPosState, properties = MapProperties(
+    GoogleMap( modifier = modifier.fillMaxSize(),
+        cameraPositionState = camPosState,
+
+        properties = MapProperties(
         isMyLocationEnabled = hasLocationPermission
     ),
         uiSettings = MapUiSettings(myLocationButtonEnabled = true),
         onMapClick = {
-        viewModel.add("Cidade@${it.latitude}:${it.longitude}", location = it) }
+            viewModel.addCity(it) }
     ) {
         viewModel.cities.forEach {
             if (it.location != null) {
@@ -71,25 +71,5 @@ fun MapPage(
                     title = it.name, snippet = "${it.location}")
             }
         }
-        Marker(
-            state = recife,
-            title = "Recife",
-            snippet = "Marcador em Recife",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-        )
-
-        Marker(
-            state = caruaru,
-            title = "Caruaru",
-            snippet = "Marcador em Caruaru",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
-        )
-
-        Marker(
-            state = joaopessoa,
-            title = "João Pessoa",
-            snippet = "Marcador em João Pessoa",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-        )
     }
 }
