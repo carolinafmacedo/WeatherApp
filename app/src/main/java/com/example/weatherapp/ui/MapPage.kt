@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.weatherapp.model.MainViewModel
+import com.example.weatherapp.model.Weather
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -45,30 +46,39 @@ fun MapPage(
     viewModel: MainViewModel
 ) {
 
-    val camPosState = rememberCameraPositionState ()
+    val camPosState = rememberCameraPositionState()
 
     val context = LocalContext.current
     val hasLocationPermission by remember {
         mutableStateOf(
-            ContextCompat.checkSelfPermission(context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+            ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) ==
                     PackageManager.PERMISSION_GRANTED
         )
     }
-    GoogleMap( modifier = modifier.fillMaxSize(),
+    GoogleMap(
+        modifier = modifier.fillMaxSize(),
         cameraPositionState = camPosState,
 
         properties = MapProperties(
-        isMyLocationEnabled = hasLocationPermission
-    ),
+            isMyLocationEnabled = hasLocationPermission
+        ),
         uiSettings = MapUiSettings(myLocationButtonEnabled = true),
         onMapClick = {
-            viewModel.addCity(it) }
+            viewModel.addCity(it)
+        }
     ) {
         viewModel.cities.forEach {
             if (it.location != null) {
-                Marker( state = MarkerState(position = it.location),
-                    title = it.name, snippet = "${it.location}")
+                val weather = viewModel.weather(it.name)
+                val desc = if (weather == Weather.LOADING) "Carregando clima..."
+                else weather.desc
+                Marker(
+                    state = MarkerState(position = it.location),
+                    title = it.name, snippet = desc
+                )
             }
         }
     }
