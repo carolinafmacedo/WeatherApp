@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -56,13 +57,14 @@ class MainActivity : ComponentActivity() {
             var navController = rememberNavController()
             val fbDB = remember { FBDatabase() }
             val weatherService = remember { WeatherService() }
-            val viewModel : MainViewModel = viewModel(
+            val viewModel: MainViewModel = viewModel(
                 factory = MainViewModelFactory(fbDB, weatherService)
             )
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton = currentRoute.value?.destination?.route == Route.List.route
-            val launcher = rememberLauncherForActivityResult(contract =
-                ActivityResultContracts.RequestPermission(), onResult = {}
+            val launcher = rememberLauncherForActivityResult(
+                contract =
+                    ActivityResultContracts.RequestPermission(), onResult = {}
 
             )
             WeatherAppTheme {
@@ -76,13 +78,13 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             title = {
-                                val name = viewModel.user?.name?:"[carregando...]"
+                                val name = viewModel.user?.name ?: "[carregando...]"
                                 Text("Bem-vindo/a! $name")
                             },
-                                    actions = {
-                                IconButton( onClick = {
+                            actions = {
+                                IconButton(onClick = {
                                     Firebase.auth.signOut()
-                                } ) {
+                                }) {
                                     Icon(
                                         imageVector =
                                             Icons.AutoMirrored.Filled.ExitToApp,
@@ -98,7 +100,7 @@ class MainActivity : ComponentActivity() {
                             BottomNavItem.ListButton,
                             BottomNavItem.MapButton,
                         )
-                        BottomNavBar(navController = navController, items)
+                        BottomNavBar(navController, viewModel, items)
                     },
                     floatingActionButton = {
                         if (showButton) {
@@ -112,25 +114,40 @@ class MainActivity : ComponentActivity() {
                         launcher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
                         MainNavHost(navController = navController, viewModel = viewModel)
                     }
+                    LaunchedEffect(viewModel.page) {
+
+                        navController.navigate(viewModel.page.route) {
+
+                            navController.graph.startDestinationRoute?.let {
+                                popUpTo(it) {
+                                    saveState = true
+                                }
+                            }
+
+                            restoreState = true
+                            launchSingleTop = true
+                        }
+                    }
                 }
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+    @Composable
+    fun Greeting(name: String, modifier: Modifier = Modifier) {
+        Text(
+            text = "Hello $name!",
+            modifier = modifier
+        )
+    }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WeatherAppTheme {
-        Greeting("Android")
+    @Preview(showBackground = true)
+    @Composable
+    fun GreetingPreview() {
+        WeatherAppTheme {
+            Greeting("Android")
+        }
     }
 }
+
 

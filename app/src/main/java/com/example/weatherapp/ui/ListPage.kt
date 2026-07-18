@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.model.City
 import com.example.weatherapp.model.MainViewModel
 import com.example.weatherapp.model.Weather
+import com.example.weatherapp.ui.nav.Route
 
 @Composable
 fun ListPage(modifier: Modifier = Modifier,
@@ -58,6 +59,7 @@ fun ListPage(modifier: Modifier = Modifier,
                     Toast.makeText(activity, "Cidade: ${city.name} removida", Toast.LENGTH_SHORT).show()
             }, onClick = {
                     viewModel.city = city.name
+                    viewModel.page = Route.Home
                     Toast.makeText(activity, "Cidade ${city.name}", Toast.LENGTH_SHORT).show()
             })
         }
