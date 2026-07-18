@@ -57,6 +57,7 @@ fun ListPage(modifier: Modifier = Modifier,
                     viewModel.remove(city)
                     Toast.makeText(activity, "Cidade: ${city.name} removida", Toast.LENGTH_SHORT).show()
             }, onClick = {
+                    viewModel.city = city.name
                     Toast.makeText(activity, "Cidade ${city.name}", Toast.LENGTH_SHORT).show()
             })
         }
